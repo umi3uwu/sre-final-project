@@ -1,0 +1,33 @@
+# Исключить временные файлы и директории
+*.log
+*.tmp
+*.swp
+__pycache__/
+*.pyc
+
+# Исключить директории с виртуальными окружениями
+venv/
+env/
+
+# Исключить файлы и директории Minikube
+.minikube/
+minikube*
+
+# Исключить файлы Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Исключить Docker-файлы
+docker-compose.yml.bak
+Dockerfile.bak
+
+# Исключить локальные файлы и директории, которые могли попасть в коммит
+*.tar
+*.tar.gz
+*.zip
+*.tgz
+
+# Добавить исключения для больших файлов
+task1/flask-app.tar
+task2/.terraform/
