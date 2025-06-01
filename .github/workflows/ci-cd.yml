@@ -36,17 +36,3 @@ jobs:
         curl http://localhost:5000
         docker stop flask-app
         docker rm flask-app
-
-    - name: Deploy to Minikube
-      run: |
-        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        chmod +x minikube-linux-amd64
-        sudo mv minikube-linux-amd64 /usr/local/bin/minikube
-        minikube start --driver=docker
-        minikube image load umi3uwu/flask-app:latest
-        kubectl apply -f task2/flask-deployment.yaml
-        kubectl apply -f task2/flask-service.yaml
-        kubectl rollout status deployment/flask-app
-        kubectl port-forward svc/flask-app-service 8080:80 --address 0.0.0.0 &
-        sleep 5
-        curl http://localhost:8080
