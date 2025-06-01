@@ -1,0 +1,52 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: task1
+        push: true
+        tags: umi3uwu/flask-app:latest
+
+    - name: Test the application
+      run: |
+        docker run -d -p 5000:5000 --name flask-app umi3uwu/flask-app:latest
+        sleep 5
+        curl http://localhost:5000
+        docker stop flask-app
+        docker rm flask-app
+
+    - name: Deploy to Minikube
+      run: |
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        chmod +x minikube-linux-amd64
+        sudo mv minikube-linux-amd64 /usr/local/bin/minikube
+        minikube start --driver=docker
+        minikube image load umi3uwu/flask-app:latest
+        kubectl apply -f task2/flask-deployment.yaml
+        kubectl apply -f task2/flask-service.yaml
+        kubectl rollout status deployment/flask-app
+        kubectl port-forward svc/flask-app-service 8080:80 --address 0.0.0.0 &
+        sleep 5
+        curl http://localhost:8080
